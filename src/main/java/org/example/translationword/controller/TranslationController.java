@@ -3,13 +3,19 @@ package org.example.translationword.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.translationword.config.DeeplProperty;
+import org.example.translationword.controller.request.DeeplRequest;
 import org.example.translationword.controller.request.TranslationRequest;
+import org.example.translationword.controller.response.DeeplApiResponse;
+import org.example.translationword.controller.response.DeeplResponse;
+import org.example.translationword.controller.response.Translation;
 import org.example.translationword.controller.response.TranslationResponse;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -21,18 +27,29 @@ public class TranslationController {
     
     @PostMapping("/api/translation")
     public ResponseEntity<TranslationResponse> retrieveTranslation(@RequestBody TranslationRequest request) {
-        log.info("request = {}", request);
-        TranslationResponse response = callDeeplApi(request);
-        return ResponseEntity.ok(response);
-    }
 
+        List<String> splitedRequestText = request.split();
+        DeeplResponse response = callDeeplApi(DeeplRequest.of(splitedRequestText));
+
+        List<String> wordList = splitedRequestText; // en
+        List<DeeplApiResponse> translations = response.getTranslations(); // ko
+
+        List<Translation> responseElements = new ArrayList<>();
+        for (int i = 0; i < wordList.size(); i++) {
+            responseElements.add(createTranslation(wordList, i, translations));
+        }
+
+        return ResponseEntity.ok(createResponseBody(responseElements));
+    }
 
     /**
      * deepl api 호출
      * @param request
      * @return
      */
-    private TranslationResponse callDeeplApi(TranslationRequest request) {
+    private DeeplResponse callDeeplApi(DeeplRequest request) {
+
+        log.info("request = {}", request);
 
         RestClient restClient = RestClient.create();
 
@@ -43,8 +60,20 @@ public class TranslationController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(request)
                 .retrieve()
-                .body(TranslationResponse.class);
+                .body(DeeplResponse.class);
 
     }
+
+    private Translation createTranslation(List<String> wordList, int i, List<DeeplApiResponse> translations) {
+        return Translation.builder()
+                .eng(wordList.get(i))
+                .ko(translations.get(i).getText())
+                .build();
+    }
+
+    private TranslationResponse createResponseBody(List<Translation> responseElements) {
+        return TranslationResponse.builder().translations(responseElements).build();
+    }
+
 
 }

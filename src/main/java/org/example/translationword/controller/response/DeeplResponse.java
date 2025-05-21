@@ -8,11 +8,11 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-public class TranslationResponse {
-    List<Translation> translations;
+public class DeeplResponse {
+    private List<DeeplApiResponse> translations;
 
     @Builder
-    private TranslationResponse(List<Translation> translations) {
+    private DeeplResponse(List<DeeplApiResponse> translations) {
         this.translations = translations;
     }
 }

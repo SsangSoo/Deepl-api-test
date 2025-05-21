@@ -7,12 +7,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class Translation {
-    private String detected_source_language;
-    private String text;
+
+    private String eng;
+    private String ko;
 
     @Builder
-    private Translation(String detected_source_language, String text) {
-        this.detected_source_language = detected_source_language;
-        this.text = text;
+    private Translation(String eng, String ko) {
+        this.eng = eng;
+        this.ko = ko;
     }
 }

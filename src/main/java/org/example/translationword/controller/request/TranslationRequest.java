@@ -5,18 +5,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.util.List;
+import java.util.*;
 
 @Getter
 @NoArgsConstructor
 @ToString
 public class TranslationRequest {
-    private List<String> text;
-    private String target_lang;
+    private String text;
 
     @Builder
-    private TranslationRequest(List<String> text, String target_lang) {
+    private TranslationRequest(String text) {
         this.text = text;
-        this.target_lang = target_lang;
     }
+
+    public List<String> split() {
+        Set<String> set = new LinkedHashSet<>();
+
+        String[] words = text.split(" ");
+
+        for (String word : words) {
+            set.add(word);
+        }
+
+        set.add(text);
+
+        return new ArrayList<>(set);
+
+    }
+
 }
