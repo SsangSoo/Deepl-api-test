@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: translation-word
+
+
+deepl:
+  auth: ${DEEPL_API}
